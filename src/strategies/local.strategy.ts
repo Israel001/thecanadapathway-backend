@@ -4,13 +4,14 @@ import { Strategy } from 'passport-local';
 import { AppService } from 'src/app.service';
 
 @Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy) {
+export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   constructor(private readonly service: AppService) {
-    super({ usernameField: 'accessCode', passReqToCallback: true });
+    super({ usernameField: 'accessCode' });
   }
 
   async validate(accessCode: string) {
-    const user = await this.service.validateUser(accessCode);
-    return user;
+    console.log('here???');
+    // const user = await this.service.validateUser(accessCode);
+    return {};
   }
 }

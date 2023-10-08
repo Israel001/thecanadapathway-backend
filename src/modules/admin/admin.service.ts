@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -8,7 +9,9 @@ import { IAdminAuthContext } from 'src/types';
 import { AdminUser } from './admin.entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
+import { Student } from 'src/entities/students.entity';
+import { AdminUserDto } from './dto';
 
 @Injectable()
 export class AdminService {
@@ -16,12 +19,75 @@ export class AdminService {
     private readonly jwtService: JwtService,
     @InjectRepository(AdminUser)
     private readonly adminUserRepository: Repository<AdminUser>,
+    @InjectRepository(Student)
+    private readonly studentRepository: Repository<Student>,
   ) {}
 
   async findUserByEmail(email: string) {
     return this.adminUserRepository.findOne({
       where: { email },
     });
+  }
+
+  async getActiveStudents() {
+    return this.studentRepository.find({
+      where: {
+        suspended: false,
+      },
+    });
+  }
+
+  async getSuspendedStudents() {
+    return this.studentRepository.find({
+      where: {
+        suspended: true,
+      },
+    });
+  }
+
+  async suspendUser(userId: number) {
+    const user = await this.studentRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) throw new NotFoundException('User does not exist');
+    const userModel = this.studentRepository.create({
+      id: user.id,
+      suspended: true,
+    });
+    return this.studentRepository.save(userModel);
+  }
+
+  async activateUser(userId: number) {
+    const user = await this.studentRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) throw new NotFoundException('User does not exist');
+    const userModel = this.studentRepository.create({
+      id: user.id,
+      suspended: false,
+    });
+    return this.studentRepository.save(userModel);
+  }
+
+  async createUser(user: AdminUserDto) {
+    const userExists = await this.adminUserRepository.findOne({
+      where: { email: user.email },
+    });
+    if (userExists)
+      throw new ConflictException(
+        `User with email: ${user.email} already exists`,
+      );
+    const hashedPassword = await bcrypt.hash(user.password, 12);
+    const adminUserModel = this.adminUserRepository.create({
+      fullName: user.fullName,
+      email: user.email,
+      password: hashedPassword,
+    });
+    await this.adminUserRepository.save(adminUserModel);
   }
 
   async validateUser(email: string, password: string) {

@@ -21,6 +21,8 @@ import { AdminModule } from './modules/admin/admin.module';
 import * as ormconfig from './config/ormconfig';
 import { Student } from './entities/students.entity';
 import { Payment } from './entities/payments.entity';
+import { AdminJwtStrategy } from './modules/admin/strategies/jwt.strategy';
+import { SharedModule } from './modules/shared/shared.module';
 
 @Module({
   imports: [
@@ -42,6 +44,7 @@ import { Payment } from './entities/payments.entity';
     }),
     TypeOrmModule.forRoot(ormconfig),
     TypeOrmModule.forFeature([Student, Payment]),
+    SharedModule,
     AdminModule,
   ],
   controllers: [AppController],
@@ -55,7 +58,7 @@ import { Payment } from './entities/payments.entity';
       useClass: TimeoutInterceptor,
     },
     AppService,
-    LocalStrategy,
+    AdminJwtStrategy,
   ],
 })
 export class AppModule implements NestModule {

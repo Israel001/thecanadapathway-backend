@@ -10,10 +10,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthConfiguration } from 'src/config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthConfig } from 'src/config/types/jwt-auth.config';
+import { Student } from 'src/entities/students.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AdminUser]),
+    TypeOrmModule.forFeature([AdminUser, Student]),
     PassportModule,
     ConfigModule.forRoot({ load: [JwtAuthConfiguration] }),
     JwtModule.registerAsync({

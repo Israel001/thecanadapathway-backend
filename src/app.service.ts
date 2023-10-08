@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { FlutterwaveConfig } from './config/types/flutterwave.config';
 import { ConfigService } from '@nestjs/config';
-import { PaymentInfo } from './app.dto';
+import { PaymentInfo, PreOrderEmailDto } from './app.dto';
 import axios from 'axios';
 import util from 'util';
 import { JwtService } from '@nestjs/jwt';
@@ -14,6 +14,9 @@ import { Student } from './entities/students.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment } from './entities/payments.entity';
+import { SharedService } from './modules/shared/shared.service';
+import otpGenerator from 'otp-generator';
+import moment from 'moment';
 
 @Injectable()
 export class AppService {
@@ -22,6 +25,7 @@ export class AppService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly sharedService: SharedService,
     @InjectRepository(Student)
     private readonly studentRepository: Repository<Student>,
     @InjectRepository(Payment)
@@ -31,18 +35,22 @@ export class AppService {
       this.configService.get<FlutterwaveConfig>('flutterwaveConfig');
   }
 
-  async login(user: Student) {
-    return {
-      accessToken: this.jwtService.sign(user),
-    };
-  }
-
-  async validateUser(accessCode: string): Promise<Student> {
+  async login(accessCode: string) {
     const user = await this.studentRepository.findOne({
       where: { accessCode },
     });
     if (!user) throw new NotFoundException('Access code not found');
-    return user;
+    if (user.suspended) throw new NotAcceptableException('User is suspended');
+    delete user.createdAt;
+    delete user.updatedAt;
+    delete user.accessCode;
+    return {
+      accessToken: this.jwtService.sign({
+        email: user.email,
+        name: user.fullName,
+      }),
+      user,
+    };
   }
 
   async verifyTransaction(
@@ -63,7 +71,6 @@ export class AppService {
         throw error;
       });
     const data = response.data.data;
-    console.log(data);
     if (
       data.status !== 'successful' ||
       data.amount !== amount ||
@@ -86,6 +93,7 @@ export class AppService {
     await this.paymentRepository.save(paymentModel);
 
     const studentModel = this.studentRepository.create({
+      fullName: data.customer.name,
       email: data.customer.email,
       accessCode,
       suspended: false,
@@ -97,10 +105,41 @@ export class AppService {
     await this.studentRepository.save(studentModel);
 
     // send access code to student email
+    await this.sharedService.sendEmail({
+      templateCode: 'order_received',
+      to: studentModel.email,
+      subject: 'Welcome to the Academy',
+      data: {
+        fullName: studentModel.fullName,
+        email: studentModel.email,
+        accessCode: studentModel.accessCode,
+      },
+    });
 
     return {
       success: true,
       message: 'Transaction verified successfully',
     };
+  }
+
+  async sendPreOrderEmail(details: PreOrderEmailDto) {
+    await this.sharedService.sendEmail({
+      templateCode: 'pre_order',
+      to: details.email,
+      subject: 'Complete Your Canada Ultimate Guide Order',
+      data: {
+        fullName: details.fullName,
+        orderNumber: otpGenerator.generate(8, {
+          upperCaseAlphabets: false,
+          lowerCaseAlphabets: false,
+          specialChars: false,
+        }),
+        date: moment().format('LL'),
+        itemPrice: details.itemPrice,
+        offerPrice: details.offerPrice,
+        totalPrice: details.totalPrice,
+      },
+    });
+    return true;
   }
 }

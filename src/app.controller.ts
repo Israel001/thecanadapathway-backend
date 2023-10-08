@@ -6,11 +6,10 @@ import {
   ParseIntPipe,
   Post,
   UseGuards,
-  Request,
 } from '@nestjs/common';
-import { LoginDTO, PaymentInfo } from './app.dto';
+import { LoginDTO, PaymentInfo, PreOrderEmailDto } from './app.dto';
 import { AppService } from './app.service';
-import { LocalAuthGuard } from './guards/local-auth-guard';
+import { AdminJwtAuthGuard } from './modules/admin/guards/jwt-auth-guard';
 
 @Controller()
 export class AppController {
@@ -26,13 +25,22 @@ export class AppController {
     @Param('transactionId', ParseIntPipe) transactionId: number,
     @Body() payment: PaymentInfo,
   ) {
-    console.log(payment);
     return this.service.verifyTransaction(transactionId, payment);
   }
 
   @Post('login')
-  @UseGuards(LocalAuthGuard)
-  login(@Body() _body: LoginDTO, @Request() req: any) {
-    return this.service.login(req.user);
+  login(@Body() { accessCode }: LoginDTO) {
+    return this.service.login(accessCode);
+  }
+
+  @Post('send-pre-order-email')
+  sendPreOrderEmail(@Body() preorderEmail: PreOrderEmailDto) {
+    return this.service.sendPreOrderEmail(preorderEmail);
+  }
+
+  @Get('test-token')
+  @UseGuards(AdminJwtAuthGuard)
+  testToken() {
+    return true;
   }
 }

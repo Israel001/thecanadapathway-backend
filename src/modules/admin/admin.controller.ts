@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AllowUnauthorizedRequest } from 'src/decorators/unauthorized.decorator';
 import { AdminService } from './admin.service';
 import * as dtos from './dto';
@@ -15,5 +24,30 @@ export class AdminController {
   @UseGuards(AdminLocalAuthGuard)
   login(@Body() _body: dtos.AdminLoginDTO, @Req() req: any) {
     return this.service.login(req.user);
+  }
+
+  @Post('/user')
+  createUser(@Body() body: dtos.AdminUserDto) {
+    return this.service.createUser(body);
+  }
+
+  @Get('/active-students')
+  getActiveStudents() {
+    return this.service.getActiveStudents();
+  }
+
+  @Get('/suspended-students')
+  getSuspendedStudents() {
+    return this.service.getSuspendedStudents();
+  }
+
+  @Post('/:userId/suspend')
+  suspendUser(@Param('userId', ParseIntPipe) userId: number) {
+    return this.service.suspendUser(userId);
+  }
+
+  @Post('/:userId/activate')
+  activateUser(@Param('userId', ParseIntPipe) userId: number) {
+    return this.service.activateUser(userId);
   }
 }

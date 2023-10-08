@@ -2,7 +2,7 @@ import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/base/entity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('payments', { synchronize: true })
+@Entity('payments', { synchronize: false })
 export class Payment extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()
