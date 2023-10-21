@@ -134,10 +134,11 @@ export class AppService {
           lowerCaseAlphabets: false,
           specialChars: false,
         }),
-        date: moment().format('LL'),
+        date: moment().add(1, 'hours').format('LL'),
         itemPrice: details.itemPrice,
         offerPrice: details.offerPrice,
         totalPrice: details.totalPrice,
+        url: `https://thecanadapathway.com/take-action-now?currency=${details.currency}&email=${details.email}&name=${details.fullName}&page=${details.page}&expiryDate=${details.expiryDate}`,
       },
     });
     return true;

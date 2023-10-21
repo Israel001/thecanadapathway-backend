@@ -1,4 +1,4 @@
-import { IsEmail, IsNumber, IsString } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class PaymentInfo {
   @IsNumber()
@@ -28,4 +28,14 @@ export class PreOrderEmailDto {
 
   @IsEmail()
   email: string;
+
+  @IsString()
+  @IsOptional()
+  expiryDate: string;
+
+  @IsString()
+  page: string;
+
+  @IsString()
+  currency: string;
 }

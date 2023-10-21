@@ -49,7 +49,8 @@ export class SharedService {
       : notificationTemplate.body;
     delete email.templateCode;
     if (!email.bcc) email.bcc = 'info@thecanadapathway.com';
-    if (!email.from) email.from = 'WasteNG <info@thecanadapathway.com>';
+    if (!email.from)
+      email.from = 'TheCanadaPathway <info@thecanadapathway.com>';
     sendMail(email);
   }
 }

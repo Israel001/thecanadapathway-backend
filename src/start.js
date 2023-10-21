@@ -168,7 +168,7 @@ const sendEmail = async (email, res) => {
     : notificationTemplate.body;
   delete email.templateCode;
   if (!email.bcc) email.bcc = 'info@thecanadapathway.com';
-  if (!email.from) email.from = 'WasteNG <info@thecanadapathway.com>';
+  if (!email.from) email.from = 'DY Travels <info@thecanadapathway.com>';
   sendMail(email);
 };
 
