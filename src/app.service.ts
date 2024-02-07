@@ -68,7 +68,7 @@ export class AppService {
       )
       .catch((error) => {
         console.log(util.inspect(error.response, true, null, false));
-        throw error;
+        throw new Error(util.inspect(error.response, true, null, false));
       });
     const data = response.data.data;
     if (

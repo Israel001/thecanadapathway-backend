@@ -11,6 +11,7 @@ import { JwtAuthConfiguration } from 'src/config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthConfig } from 'src/config/types/jwt-auth.config';
 import { Student } from 'src/entities/students.entity';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { Student } from 'src/entities/students.entity';
       }),
       inject: [ConfigService],
     }),
+    SharedModule,
   ],
   providers: [AdminService, AdminLocalStrategy, AdminJwtStrategy],
   controllers: [AdminController],

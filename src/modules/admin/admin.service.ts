@@ -12,6 +12,8 @@ import { Repository } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import { Student } from 'src/entities/students.entity';
 import { AdminUserDto } from './dto';
+import { nanoid } from 'nanoid';
+import { SharedService } from '../shared/shared.service';
 
 @Injectable()
 export class AdminService {
@@ -21,12 +23,44 @@ export class AdminService {
     private readonly adminUserRepository: Repository<AdminUser>,
     @InjectRepository(Student)
     private readonly studentRepository: Repository<Student>,
+    private readonly sharedService: SharedService,
   ) {}
 
   async findUserByEmail(email: string) {
     return this.adminUserRepository.findOne({
       where: { email },
     });
+  }
+
+  async giveAccessCode(email: string, name: string) {
+    const studentModel = this.studentRepository.create({
+      fullName: name,
+      email: email,
+      accessCode: nanoid().toUpperCase(),
+      suspended: false,
+    });
+    const studentExists = await this.studentRepository.findOne({
+      where: { email },
+    });
+    if (studentExists) studentModel.id = studentExists.id;
+    await this.studentRepository.save(studentModel);
+
+    // send access code to student email
+    await this.sharedService.sendEmail({
+      templateCode: 'order_received',
+      to: studentModel.email,
+      subject: 'Welcome to the Academy',
+      data: {
+        fullName: studentModel.fullName,
+        email: studentModel.email,
+        accessCode: studentModel.accessCode,
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Access code sent successfully',
+    };
   }
 
   async getActiveStudents() {

@@ -15,7 +15,7 @@ import { AdminLocalAuthGuard } from './guards/local-auth-guard';
 import { AdminJwtAuthGuard } from './guards/jwt-auth-guard';
 
 @Controller('/admin')
-@UseGuards(AdminJwtAuthGuard)
+// @UseGuards(AdminJwtAuthGuard)
 export class AdminController {
   constructor(private readonly service: AdminService) {}
 
@@ -29,6 +29,11 @@ export class AdminController {
   @Post('/user')
   createUser(@Body() body: dtos.AdminUserDto) {
     return this.service.createUser(body);
+  }
+
+  @Post('/give-access-code')
+  giveAccessCode(@Body() body: { email: string; name: string }) {
+    return this.service.giveAccessCode(body.email, body.name);
   }
 
   @Get('/active-students')

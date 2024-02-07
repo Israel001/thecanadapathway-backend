@@ -14,7 +14,6 @@ import { TimeoutInterceptor } from './lib/timeout.interceptor';
 import { AppService } from './app.service';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthConfig } from './config/types/jwt-auth.config';
-import { LocalStrategy } from './strategies/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './modules/admin/admin.module';
