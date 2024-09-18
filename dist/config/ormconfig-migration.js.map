@@ -1,0 +1,1 @@
+{"version":3,"file":"ormconfig-migration.js","sourceRoot":"","sources":["../../src/config/ormconfig-migration.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,qCAAqC;AAErC,oDAAsC;AAEtC,MAAM,gBAAgB,qBAAQ,MAAM,CAAE,CAAC;AACvC,OAAO,gBAAgB,CAAC,WAAW,CAAC;AACpC,OAAO,gBAAgB,CAAC,aAAa,CAAC;AACtC,OAAO,gBAAgB,CAAC,OAAO,CAAC;AAEnB,QAAA,UAAU,GAAG,IAAI,oBAAU,CAAC,gBAAuB,CAAC,CAAC"}

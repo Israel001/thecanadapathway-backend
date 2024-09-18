@@ -17,4 +17,6 @@ async function bootstrap() {
     new Logger().log(`API is started on PORT ${process.env.PORT || 8080}...`);
   });
 }
-bootstrap();
+if (!process.env.VERCEL) {
+  bootstrap();
+}
